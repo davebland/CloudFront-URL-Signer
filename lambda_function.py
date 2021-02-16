@@ -9,7 +9,7 @@ def lambda_handler(event, context):
 
     try:        
         request_body = json.loads(event["body"])        
-        if not {'url', 'expiry'} <= request_body.keys():
+        if not {'url', 'expiry', 'keyid'} <= request_body.keys():
             raise Exception()        
     except Exception as e:       
         print(e)
@@ -19,8 +19,8 @@ def lambda_handler(event, context):
         }
 
     try:
-        expiry_date = datetime.strptime(request_body['expiry'], '%Y-%m-%d %H:%M:%S')
-        return signer.sign_url(request_body['url'], expiry_date)
+        expiry_date = datetime.strptime(request_body['expiry'], '%Y-%m-%d %H:%M:%S %Z')
+        return signer.sign_url(request_body['url'], expiry_date, request_body['keyid'])
     except Exception as e:       
         print(e)
         return {
@@ -28,5 +28,5 @@ def lambda_handler(event, context):
             'body': "Error Signing URL"
         }
 
-# test_json = '{"url":"https://abcd.com","expiry":"2020-01-01 00:00:00"}'
-# print(lambda_handler({'body':test_json}, None))
+#test_json = '{"url":"https://abcd.com","expiry":"2020-01-01 00:00:00 UTC", "keyid":"blah"}'
+#print(lambda_handler({'body':test_json}, None))

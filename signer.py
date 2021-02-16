@@ -4,7 +4,6 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from botocore.signers import CloudFrontSigner
 
-
 def rsa_signer(message):
     with open('private_key.pem', 'rb') as key_file:
         private_key = serialization.load_pem_private_key(
@@ -14,13 +13,13 @@ def rsa_signer(message):
         )
     return private_key.sign(message, padding.PKCS1v15(), hashes.SHA1())
 
-def sign_url(url, expiry):
+def sign_url(url, expiry, key_id):
 
-    cloudfront_signer = CloudFrontSigner('MYKEYID', rsa_signer)
+    cloudfront_signer = CloudFrontSigner(key_id, rsa_signer)
 
     # Create a signed url that will be valid until the specfic expiry date
     # provided using a canned policy.
     signed_url = cloudfront_signer.generate_presigned_url(
-        url, date_less_than=expiry)
+        url=url, date_less_than=expiry)
     
     return signed_url
